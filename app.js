@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const { getAllCategories } = require("./controllers/ncg.controller");
+const { getAllCategories } = require("./controllers/categories.controller");
 
 app.get("/api/categories", getAllCategories);
 
