@@ -157,7 +157,7 @@ describe("/api", () => {
         .send(reviewUpdate)
         .expect(400)
         .then(({ body }) => {
-          expect(body.msg).toBe("Invalid request");
+          expect(body.msg).toBe(`totes is an invalid request property`);
         });
     });
   });
