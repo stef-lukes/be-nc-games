@@ -148,5 +148,17 @@ describe("/api", () => {
           expect(body.msg).toBe("Invalid request");
         });
     });
+    test("status 400, as above but tests error handling if request body key is invalid", () => {
+      const reviewUpdate = {
+        totes: 5,
+      };
+      return request(app)
+        .patch("/api/reviews/3")
+        .send(reviewUpdate)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Invalid request");
+        });
+    });
   });
 });
