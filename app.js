@@ -1,18 +1,24 @@
 const express = require("express");
 const app = express();
 const { getAllCategories } = require("./controllers/categories.controller");
-const { getReviewById } = require("./controllers/reviews.controller");
+const {
+  getReviewById,
+  patchReviewById,
+} = require("./controllers/reviews.controller");
 app.use(express.json());
 
 app.get("/api/categories", getAllCategories);
 
 app.get("/api/reviews/:review_id", getReviewById);
 
+app.patch("/api/reviews/:review_id", patchReviewById);
+
 app.all("/*", (req, res) => {
   res.status(404).send({ msg: "Endpoint not found." });
 });
 
 app.use((err, req, res, next) => {
+  // console.log(err, "<< app 1st express handler");
   if (err.code === "22P02") {
     res.status(400).send({ msg: "Invalid request" });
   } else {
@@ -25,6 +31,7 @@ app.use((err, req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
+  console.log(err);
   res.status(500).send({ msg: "Internal Server Error" });
 });
 
