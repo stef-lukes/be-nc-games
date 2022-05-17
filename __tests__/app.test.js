@@ -88,7 +88,7 @@ describe("/api", () => {
 
   // ====================================
 
-  describe.only("5 PATCH/api/reviews/:review_id", () => {
+  describe("5 PATCH/api/reviews/:review_id", () => {
     test("status:200, responds with the updated review", () => {
       const reviewUpdate = {
         inc_votes: 5,
@@ -158,6 +158,36 @@ describe("/api", () => {
         .expect(400)
         .then(({ body }) => {
           expect(body.msg).toBe(`totes is an invalid request property`);
+        });
+    });
+  });
+
+  // ====================================
+
+  describe("6 GET/api/users", () => {
+    test("status 200, returns an array of user objects each containing properties of 'username', 'name', and 'avatar_url'", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          const { users } = body;
+          expect(Array.isArray(users)).toBe(true);
+          expect(users).toHaveLength(4);
+          users.forEach((user) => {
+            expect(user).toMatchObject({
+              username: expect.any(String),
+              name: expect.any(String),
+              avatar_url: expect.any(String),
+            });
+          });
+        });
+    });
+    test("status 404, should respond with an error message when passed a non existent endpoint", () => {
+      return request(app)
+        .get(`/api/invalid_endpoint`)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe(`Endpoint not found.`);
         });
     });
   });
