@@ -8,12 +8,13 @@ const app = require("../app.js");
 beforeEach(() => {
   return seed(testData);
 });
+
 afterAll(() => {
   return db.end();
 });
 
 describe("/api", () => {
-  describe("GET /api/categories", () => {
+  describe("2 GET /api/categories", () => {
     test("status: 200, responds with an array of category objects, each of which should have a slug property and a description property", () => {
       return request(app)
         .get("/api/categories")
@@ -32,13 +33,44 @@ describe("/api", () => {
           });
         });
     });
-    test("status 404, should respond with an error message when passed an endpoint with the correct type but doesn't exist in the database", () => {
+    test("status 404, should respond with an error message when passed an invalid endpoint", () => {
       return request(app)
-        .get(`/api/999999`)
+        .get(`/api/invalid_endpoint`)
         .expect(404)
         .then(({ body }) => {
-          console.log(body);
-          expect(body.msg).toEqual(`Bad request: 404! Endpoint not found.`);
+          expect(body.msg).toBe(`Endpoint not found.`);
+        });
+    });
+  });
+
+  describe("3 GET/api/reviews/:reviewId", () => {
+    test("status 200, should respond with an object containing the properties: review_id, title, review_body, designer, review_img_url, votes, category, owner, created_at", () => {
+      const REVIEW_ID = 1;
+      return request(app)
+        .get(`/api/reviews/1`)
+        .expect(200)
+        .then(({ body }) => {
+          // console.log(body, "<<< in test");
+          expect(body.review).toEqual({
+            review_id: 1,
+            title: "Agricola",
+            designer: "Uwe Rosenberg",
+            owner: "mallionaire",
+            review_img_url:
+              "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+            review_body: "Farmyard fun!",
+            category: "euro game",
+            created_at: new Date(1610964020514).toISOString(),
+            votes: 1,
+          });
+        });
+    });
+    test("status 404, should respond with an error message when passed an endpoint with the correct type but doesn't exist in the database", () => {
+      return request(app)
+        .get(`/api/reviews/999999`)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toEqual(`Review 999999 does not exist`);
         });
     });
   });
