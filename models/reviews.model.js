@@ -15,6 +15,14 @@ exports.fetchReviewById = (review_id) => {
 };
 
 exports.updateReviewById = (review_id, reqBody) => {
+  const reqBodyKey = Object.keys(reqBody)[0];
+  if (reqBodyKey !== "inc_votes") {
+    return Promise.reject({
+      status: 400,
+      msg: `${reqBodyKey} is an invalid request property`,
+    });
+  }
+
   const voteChange = reqBody.inc_votes;
   return db
     .query(
