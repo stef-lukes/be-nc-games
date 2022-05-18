@@ -273,3 +273,55 @@ describe("8 GET /api/reviews", () => {
       });
   });
 });
+
+// ====================================
+
+describe.only("9. GET /api/reviews/:review_id/comments", () => {
+  test("status: 200, should respond with an array of comments for the given review_id of which each should have properties: comment_id, votes, created_at, author, body, review_id", () => {
+    return request(app)
+      .get("/api/reviews/2/comments")
+      .expect(200)
+      .then((res) => {
+        const { comments } = res.body;
+        expect(comments).toBeInstanceOf(Array);
+        expect(comments).toHaveLength(3);
+        comments.forEach((comment) => {
+          expect(comment).toEqual(
+            expect.objectContaining({
+              comment_id: expect.any(Number),
+              body: expect.any(String),
+              votes: expect.any(Number),
+              author: expect.any(String),
+              review_id: 2,
+              created_at: expect.any(String),
+            })
+          );
+        });
+      });
+  });
+  test("status 404, valid data type (number) but does not match any existing review_id", () => {
+    return request(app)
+      .get("/api/reviews/999/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Review 999 does not exist");
+      });
+  });
+  test("status 400, invalid data type (not a number) passed into query as review_id", () => {
+    return request(app)
+      .get("/api/reviews/invalid_id/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid request");
+      });
+  });
+  test("status 200, valid path but review has no comments and returns empty array ", () => {
+    return request(app)
+      .get("/api/reviews/1/comments")
+      .expect(200)
+      .then((res) => {
+        const { body } = res;
+        expect(body.msg).toBe(`Review 1 has no comments`);
+      });
+  });
+});
