@@ -315,7 +315,7 @@ describe.only("9. GET /api/reviews/:review_id/comments", () => {
         expect(body.msg).toBe("Invalid request");
       });
   });
-  test("status 200, valid path but review has no comments and returns empty array ", () => {
+  test("status 200, valid path but review has no comments. Should return custom error handler.", () => {
     return request(app)
       .get("/api/reviews/1/comments")
       .expect(200)
