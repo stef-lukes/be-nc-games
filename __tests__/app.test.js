@@ -53,7 +53,7 @@ describe("/api", () => {
         .get(`/api/reviews/1`)
         .expect(200)
         .then(({ body }) => {
-          expect(body.review).toMatchObject({
+          expect(body.review).toEqual({
             review_id: 1,
             title: "Agricola",
             designer: "Uwe Rosenberg",
@@ -64,6 +64,7 @@ describe("/api", () => {
             category: "euro game",
             created_at: new Date(1610964020514).toISOString(),
             votes: 1,
+            comment_count: 0,
           });
         });
     });
@@ -200,7 +201,17 @@ describe("7. GET /api/reviews/:review_id (comment count)", () => {
       .get(`/api/reviews/3`)
       .expect(200)
       .then(({ body }) => {
-        expect(body.review).toMatchObject({
+        expect(body.review).toEqual({
+          review_id: 3,
+          title: "Ultimate Werewolf",
+          designer: "Akihisa Okui",
+          owner: "bainesface",
+          review_img_url:
+            "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+          review_body: "We couldn't find the werewolf!",
+          category: "social deduction",
+          created_at: new Date(1610964101251).toISOString(),
+          votes: 5,
           comment_count: 3,
         });
       });
