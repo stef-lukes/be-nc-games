@@ -15,14 +15,7 @@ exports.fetchReviewComments = (review_id) => {
         status: 404,
         msg: `Review ${review_id} does not exist`,
       });
-    } else {
-      if (comments.rows.length === 0) {
-        return Promise.reject({
-          status: 200,
-          msg: `Review ${review_id} has no comments`,
-        });
-      }
-      return comments.rows;
     }
+    return comments.rows;
   });
 };
