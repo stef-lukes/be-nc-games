@@ -233,3 +233,43 @@ describe("7. GET /api/reviews/:review_id (comment count)", () => {
       });
   });
 });
+
+// ====================================
+
+describe("8 GET /api/reviews", () => {
+  test("status: 200, responds with an array of category objects, each of which should have a slug property and a description property", () => {
+    return request(app)
+      .get("/api/reviews")
+      .expect(200)
+      .then((res) => {
+        const { reviews } = res.body;
+        expect(reviews).toBeInstanceOf(Array);
+        expect(reviews).toHaveLength(13);
+        reviews.forEach((review) => {
+          expect(review).toEqual(
+            expect.objectContaining({
+              review_id: expect.any(Number),
+              title: expect.any(String),
+              designer: expect.any(String),
+              owner: expect.any(String),
+              review_img_url: expect.any(String),
+              review_body: expect.any(String),
+              category: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              comment_count: expect.any(Number),
+            })
+          );
+        });
+        expect(reviews).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+  test("status 404, should respond with an error message when passed an invalid endpoint", () => {
+    return request(app)
+      .get(`/api/invalid_endpoint`)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe(`Endpoint not found.`);
+      });
+  });
+});
