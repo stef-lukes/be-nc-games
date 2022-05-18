@@ -47,14 +47,13 @@ describe("/api", () => {
 
   // ====================================
 
-  describe("4 GET/api/reviews/:reviewId", () => {
+  describe("4 GET/api/reviews/:review_id", () => {
     test("status 200, should respond with an object containing the properties: review_id, title, review_body, designer, review_img_url, votes, category, owner, created_at", () => {
-      const REVIEW_ID = 1;
       return request(app)
         .get(`/api/reviews/1`)
         .expect(200)
         .then(({ body }) => {
-          expect(body.review).toEqual({
+          expect(body.review).toMatchObject({
             review_id: 1,
             title: "Agricola",
             designer: "Uwe Rosenberg",
@@ -190,5 +189,36 @@ describe("/api", () => {
           expect(body.msg).toBe(`Endpoint not found.`);
         });
     });
+  });
+});
+
+// ====================================
+
+describe("7. GET /api/reviews/:review_id (comment count)", () => {
+  test("status 200, should now respond with the same object as in TEST BLOCK 4 with the addition of a COMMENTS_COUNT property, which counts the number references to the review_id passed in the comments data", () => {
+    return request(app)
+      .get(`/api/reviews/3`)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.review).toMatchObject({
+          comment_count: 3,
+        });
+      });
+  });
+  test("status 404, should respond with an error message when passed an endpoint with the correct type but doesn't exist in the database", () => {
+    return request(app)
+      .get(`/api/reviews/999999`)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toEqual(`Review 999999 does not exist`);
+      });
+  });
+  test("status 400, responds with a bad request error when passed an invalid data type", () => {
+    return request(app)
+      .get("/api/reviews/invalid_id")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid request");
+      });
   });
 });
