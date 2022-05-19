@@ -282,10 +282,10 @@ describe.only("9. GET /api/reviews/:review_id/comments", () => {
       .get("/api/reviews/2/comments")
       .expect(200)
       .then((res) => {
-        const { comments } = res.body;
-        expect(comments).toBeInstanceOf(Array);
-        expect(comments).toHaveLength(3);
-        comments.forEach((comment) => {
+        const { body } = res.body;
+        expect(body).toBeInstanceOf(Array);
+        expect(body).toHaveLength(3);
+        body.forEach((comment) => {
           expect(comment).toEqual(
             expect.objectContaining({
               comment_id: expect.any(Number),
