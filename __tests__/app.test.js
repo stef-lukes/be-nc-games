@@ -282,10 +282,10 @@ describe("9. GET /api/reviews/:review_id/comments", () => {
       .get("/api/reviews/2/comments")
       .expect(200)
       .then((res) => {
-        const { body } = res.body;
-        expect(body).toBeInstanceOf(Array);
-        expect(body).toHaveLength(3);
-        body.forEach((comment) => {
+        const { body } = res;
+        expect(body.comments).toBeInstanceOf(Array);
+        expect(body.comments).toHaveLength(3);
+        body.comments.forEach((comment) => {
           expect(comment).toEqual(
             expect.objectContaining({
               comment_id: expect.any(Number),
@@ -320,15 +320,15 @@ describe("9. GET /api/reviews/:review_id/comments", () => {
       .get("/api/reviews/1/comments")
       .expect(200)
       .then((res) => {
-        const { body } = res.body;
-        expect(body).toEqual([]);
+        const { body } = res;
+        expect(body.comments).toEqual([]);
       });
   });
 });
 
 // ====================================
 
-describe.only("10 POST /api/reviews/:review_id/comments", () => {
+describe("10 POST /api/reviews/:review_id/comments", () => {
   test("status 201, request body accepts an object with username and body and responds with the posted comment", () => {
     const commentPost = {
       username: "mallionaire",
@@ -356,6 +356,14 @@ describe.only("10 POST /api/reviews/:review_id/comments", () => {
     return request(app)
       .post("/api/reviews/2/comments")
       .send(badPost)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid request");
+      });
+  });
+  test("status 400, invalid data type (not a number) passed into query as review_id", () => {
+    return request(app)
+      .get("/api/reviews/invalid_id/comments")
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Invalid request");
