@@ -7,7 +7,10 @@ const {
   patchReviewById,
 } = require("./controllers/reviews.controller");
 const { getAllUsers } = require("./controllers/users.controller");
-const { getReviewComments } = require("./controllers/comments.controller");
+const {
+  getReviewComments,
+  postReviewComment,
+} = require("./controllers/comments.controller");
 
 app.use(express.json());
 
@@ -21,6 +24,8 @@ app.get("/api/reviews", getAllReviews);
 
 app.get("/api/reviews/:review_id/comments", getReviewComments);
 
+app.post("/api/reviews/:review_id/comments", postReviewComment);
+
 app.get("/api/users", getAllUsers);
 
 app.all("/*", (req, res) => {
@@ -28,8 +33,16 @@ app.all("/*", (req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  if (err.code === "22P02") {
+  if (err.code === "22P02" || err.code === "23502") {
     res.status(400).send({ msg: "Invalid request" });
+  } else {
+    next(err);
+  }
+});
+
+app.use((err, req, res, next) => {
+  if (err.code === "23503") {
+    res.status(404).send({ msg: "Username does not exist" });
   } else {
     next(err);
   }

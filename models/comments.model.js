@@ -19,3 +19,17 @@ exports.fetchReviewComments = (review_id) => {
     return comments.rows;
   });
 };
+
+exports.addComment = (review_id, reqBody) => {
+  const commentAuthor = reqBody.username;
+  const commentBody = reqBody.body;
+
+  return db
+    .query(
+      `INSERT INTO comments (body, author, review_id) VALUES ($1, $2, $3) RETURNING *`,
+      [commentBody, commentAuthor, review_id]
+    )
+    .then((newComment) => {
+      return newComment.rows[0];
+    });
+};

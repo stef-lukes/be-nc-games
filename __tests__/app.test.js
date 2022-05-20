@@ -276,16 +276,16 @@ describe("8 GET /api/reviews", () => {
 
 // ====================================
 
-describe.only("9. GET /api/reviews/:review_id/comments", () => {
+describe("9. GET /api/reviews/:review_id/comments", () => {
   test("status: 200, should respond with an array of comments for the given review_id of which each should have properties: comment_id, votes, created_at, author, body, review_id", () => {
     return request(app)
       .get("/api/reviews/2/comments")
       .expect(200)
       .then((res) => {
-        const { body } = res.body;
-        expect(body).toBeInstanceOf(Array);
-        expect(body).toHaveLength(3);
-        body.forEach((comment) => {
+        const { body } = res;
+        expect(body.comments).toBeInstanceOf(Array);
+        expect(body.comments).toHaveLength(3);
+        body.comments.forEach((comment) => {
           expect(comment).toEqual(
             expect.objectContaining({
               comment_id: expect.any(Number),
@@ -322,6 +322,77 @@ describe.only("9. GET /api/reviews/:review_id/comments", () => {
       .then((res) => {
         const { body } = res;
         expect(body.comments).toEqual([]);
+      });
+  });
+});
+
+// ====================================
+
+describe("10 POST /api/reviews/:review_id/comments", () => {
+  test("status 201, request body accepts an object with username and body and responds with the posted comment", () => {
+    const commentPost = {
+      username: "mallionaire",
+      body: "It's alright, yeah",
+    };
+    return request(app)
+      .post(`/api/reviews/2/comments`)
+      .send(commentPost)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.commentPost).toEqual({
+          comment_id: 7,
+          body: "It's alright, yeah",
+          votes: 0,
+          author: "mallionaire",
+          review_id: 2,
+          created_at: expect.any(String),
+        });
+      });
+  });
+  test("status 400, body does not contain both mandatory keys", () => {
+    const badPost = {
+      username: "mallionaire",
+    };
+    return request(app)
+      .post("/api/reviews/2/comments")
+      .send(badPost)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid request");
+      });
+  });
+  test("status 400, invalid data type (not a number) passed into query as review_id", () => {
+    return request(app)
+      .get("/api/reviews/invalid_id/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid request");
+      });
+  });
+  test("status 404, review_id in path does not exist", () => {
+    const commentPost = {
+      username: "mallionaire",
+      body: "It's alright, yeah",
+    };
+    return request(app)
+      .post("/api/reviews/999/comments")
+      .send(commentPost)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Review 999 does not exist");
+      });
+  });
+  test("status 404, a user not in the database tries to post", () => {
+    const commentPost = {
+      username: "steflukes",
+      body: "Not as fun as Buck-a-Roo",
+    };
+    return request(app)
+      .post("/api/reviews/2/comments")
+      .send(commentPost)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Username does not exist");
       });
   });
 });
