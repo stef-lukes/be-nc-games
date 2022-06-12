@@ -10,6 +10,7 @@ const { getAllUsers } = require("./controllers/users.controller");
 const {
   getReviewComments,
   postReviewComment,
+  deleteCommentById,
 } = require("./controllers/comments.controller");
 
 app.use(express.json());
@@ -27,6 +28,8 @@ app.get("/api/reviews/:review_id/comments", getReviewComments);
 app.post("/api/reviews/:review_id/comments", postReviewComment);
 
 app.get("/api/users", getAllUsers);
+
+app.delete("/api/comments/:comment_id", deleteCommentById);
 
 app.all("/*", (req, res) => {
   res.status(404).send({ msg: "Endpoint not found." });

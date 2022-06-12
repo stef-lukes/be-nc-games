@@ -27,8 +27,15 @@ exports.patchReviewById = (req, res, next) => {
     });
 };
 
-exports.getAllReviews = (req, res) => {
-  fetchAllReviews().then((reviews) => {
-    res.status(200).send({ reviews });
-  });
+exports.getAllReviews = (req, res, next) => {
+  const { sort_by } = req.query;
+  const { order } = req.query;
+  const { category } = req.query;
+  fetchAllReviews(sort_by, order, category)
+    .then((reviews) => {
+      res.status(200).send({ reviews });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };

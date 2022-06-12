@@ -396,3 +396,89 @@ describe("10 POST /api/reviews/:review_id/comments", () => {
       });
   });
 });
+
+// ====================================
+
+describe("11. GET /api/reviews (queries)", () => {
+  describe("SORT_BY queries", () => {
+    test("status 200, sorts reviews by any valid column", () => {
+      return request(app)
+        .get("/api/reviews?sort_by=title")
+        .expect(200)
+        .then(({ body }) => {
+          const { reviews } = body;
+          expect(reviews).toBeSortedBy("title", { descending: true });
+        });
+    });
+    test("status 400, user enters non-valid sort_by query", () => {
+      return request(app)
+        .get("/api/reviews?sort_by=invalid_query")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Invalid sort query");
+        });
+    });
+  });
+  describe("ORDER queries", () => {
+    test("status 200, switches sort order between descending and ascending.  Default is descending", () => {
+      return request(app)
+        .get("/api/reviews?sort_by=title&&order=asc")
+        .expect(200)
+        .then(({ body }) => {
+          const { reviews } = body;
+          expect(reviews).toBeSortedBy("title", { ascending: true });
+        });
+    });
+    test("status 400, user enters invalid order query", () => {
+      return request(app)
+        .get("/api/reviews?order=invalid_query")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Invalid order query");
+        });
+    });
+  });
+  describe("CATEGORY queries", () => {
+    test("status 200, filters reviews by category value specified in the query", () => {
+      return request(app)
+        .get("/api/reviews?category=social deduction")
+        .expect(200)
+        .then(({ body }) => {
+          const { reviews } = body;
+          expect(reviews).toHaveLength(11);
+        });
+    });
+    test("status 404, user enters a non existent category", () => {
+      return request(app)
+        .get("/api/reviews?category=turd burgling")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Category: turd burgling does not exist");
+        });
+    });
+  });
+});
+
+// ====================================
+
+describe("12. DELETE /api/comments/:comment_id", () => {
+  test("status 204, Should: delete the given comment by comment_id and delete", () => {
+    return request(app).delete("/api/comments/1").expect(204);
+  });
+  test("status 404, comment_id in path does not exist", () => {
+    return request(app)
+      .delete("/api/comments/9999999")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Comment ID: 9999999 does not exist");
+      });
+  });
+  test.only("status 400 - comment_id in path is not a number", () => {
+    return request(app)
+      .delete("/api/comments/noID")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid request");
+      });
+  });
+});

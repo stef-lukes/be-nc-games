@@ -26,10 +26,26 @@ exports.addComment = (review_id, reqBody) => {
 
   return db
     .query(
-      `INSERT INTO comments (body, author, review_id) VALUES ($1, $2, $3) RETURNING *`,
+      `INSERT INTO comments (body, author, review_id) VALUES ($1, $2, $3) RETURNING *;`,
       [commentBody, commentAuthor, review_id]
     )
     .then((newComment) => {
       return newComment.rows[0];
+    });
+};
+
+exports.removeCommentById = (comment_id) => {
+  return db
+    .query(`SELECT * FROM comments WHERE comment_id =$1;`, [comment_id])
+    .then((comments) => {
+      if (!comments.rows.length) {
+        return Promise.reject({
+          status: 404,
+          msg: `Comment ID: ${comment_id} does not exist`,
+        });
+      }
+      return db.query(`DELETE FROM comments WHERE comment_id =$1;`, [
+        comment_id,
+      ]);
     });
 };
